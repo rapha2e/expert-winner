@@ -17,3 +17,35 @@ mongoose.connect(process.env.MONGO_URI)
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
 });
+
+// ====== MODELO CLIENTE ======
+const clienteSchema = new mongoose.Schema({
+  nome: String,
+  email: String,
+  criadoEm: { type: Date, default: Date.now }
+});
+
+const Cliente = mongoose.model("Cliente", clienteSchema);
+
+// ====== ROTAS ======
+
+// Criar novo cliente (POST)
+app.post("/clientes", async (req, res) => {
+  try {
+    const novoCliente = new Cliente(req.body);
+    await novoCliente.save();
+    res.status(201).send(novoCliente);
+  } catch (err) {
+    res.status(400).send({ erro: "Erro ao salvar cliente", detalhe: err });
+  }
+});
+
+// Listar clientes (GET)
+app.get("/clientes", async (req, res) => {
+  try {
+    const clientes = await Cliente.find();
+    res.send(clientes);
+  } catch (err) {
+    res.status(500).send({ erro: "Erro ao buscar clientes", detalhe: err });
+  }
+});
